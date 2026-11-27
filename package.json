@@ -1,6 +1,6 @@
 {
   "name": "dsh-novel-comment",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "description": "AI 读者：按标签自己找书读、给章节打 1–5 星并写章评/段评，形成独立口味档案与评审链。默认模拟，配置模型端点后才真正调用模型。",
   "main": "index.js",

@@ -606,6 +606,89 @@ export class ReaderService {
     return readJsonStrict<BookRecord>(this.bookFile(bookId));
   }
 
+  /**
+   * 加入书架：只存书目元信息（书名/作者/标签/来源），不拉、不存外部作品正文。
+   * 正文仍要用户自己导入或按 L2 白名单逐节读取。
+   */
+  async addToShelf(input: {
+    bookId: string;
+    title: string;
+    author?: string;
+    tags?: string[];
+    sourceId?: string;
+    sourceSite?: string;
+  }): Promise<BookRecord> {
+    const tags = [...new Set((input.tags ?? []).map((tag) => String(tag ?? "").trim()).filter(Boolean))];
+    return this.importBook({
+      bookId: input.bookId,
+      title: input.title,
+      author: input.author,
+      sourceId: input.sourceId,
+      sourceSite: input.sourceSite,
+      tags,
+      accessLevel: "public",
+    });
+  }
+
+  /** 「它读过的书」：按读者 + 书聚合最近一条评分，给右栏卡片墙用 */
+  async readingShelf(readerId?: string): Promise<Array<{
+    readerId: string;
+    bookId: string;
+    title: string | null;
+    stars: number;
+    status: string;
+    chapterNumber: number | null;
+    comment: string;
+    at: string;
+    ratings: number;
+  }>> {
+    const knownReader = readerId ? await this.getReader(readerId) : null;
+    const [ratings, books] = await Promise.all([
+      readerId ? (knownReader ? this.listRatings({ readerId }) : Promise.resolve([])) : this.listRatings(),
+      this.listBooks(),
+    ]);
+    const titles = new Map(books.map((book) => [book.bookId, book.title]));
+    const map = new Map<string, {
+      readerId: string;
+      bookId: string;
+      title: string | null;
+      stars: number;
+      status: string;
+      chapterNumber: number | null;
+      comment: string;
+      at: string;
+      ratings: number;
+    }>();
+    for (const rating of ratings) {
+      const key = `${rating.readerId}:${rating.target.bookId}`;
+      const chapterNumber = "chapterNumber" in rating.target ? rating.target.chapterNumber : null;
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, {
+          readerId: rating.readerId,
+          bookId: rating.target.bookId,
+          title: titles.get(rating.target.bookId) ?? null,
+          stars: rating.stars,
+          status: rating.status,
+          chapterNumber,
+          comment: rating.chapterComment,
+          at: rating.createdAt,
+          ratings: 1,
+        });
+        continue;
+      }
+      existing.ratings += 1;
+      if (rating.createdAt >= existing.at) {
+        existing.stars = rating.stars;
+        existing.status = rating.status;
+        existing.chapterNumber = chapterNumber;
+        existing.comment = rating.chapterComment;
+        existing.at = rating.createdAt;
+      }
+    }
+    return [...map.values()].sort((a, b) => (a.at < b.at ? 1 : -1));
+  }
+
   async listBooks(): Promise<BookRecord[]> {
     const dir = this.safePath("books");
     if (!existsSync(dir)) return [];

@@ -17,7 +17,7 @@ window.__ModuleLoader__.load({
       invoke("rateChapter", [param("options", obj)]), invoke("reviewChapter", [param("options", obj)]),
       invoke("report", [param("options", obj)]), invoke("discover", [param("options", obj)]),
       invoke("importUrl", [param("options", obj)]), invoke("tags", []), invoke("search", [param("options", obj)]),
-      invoke("updateTaste", [param("options", obj)]),
+      invoke("updateTaste", [param("options", obj)]), invoke("shelfAdd", [param("options", obj)]), invoke("comments", [param("options", obj)]),
     ] };
 
     const THEME_KEY = "dsh-novel-comment.theme";
@@ -150,6 +150,7 @@ window.__ModuleLoader__.load({
       const [findTags, setFindTags] = React.useState([]);
       const [findExclude, setFindExclude] = React.useState([]);
       const [findMeta, setFindMeta] = React.useState(null);
+      const [learned, setLearned] = React.useState({});
       const [tagEditor, setTagEditor] = React.useState("");
       const [editLiked, setEditLiked] = React.useState([]);
       const [editDisliked, setEditDisliked] = React.useState([]);
@@ -249,6 +250,15 @@ window.__ModuleLoader__.load({
         setFindMeta({ searchedTags: r.searchedTags ?? [], unknownTags: r.unknownTags ?? [] });
         return r;
       }, "按标签找书完成");
+      const doShelfAdd = (book) => run(async () => {
+        const r = unwrap(await remote.shelfAdd(sessionId, { bookId: book.bookId, title: book.title ?? book.bookId, author: book.author, tags: book.tags ?? [], sourceId: book.sourceId, sourceSite: book.sourceSite }));
+        await load(); return r;
+      }, "已加入书架（只存书目，不存正文）");
+      const doLearn = (book, chapterId) => run(async () => {
+        const r = unwrap(await remote.comments(sessionId, { bookId: book.bookId, chapterId: chapterId || "c1" }));
+        setLearned((prev) => ({ ...prev, [book.bookId]: r }));
+        return r;
+      }, "已读取评论区观察");
       const startTagEdit = (reader) => {
         setTagEditor(reader.id);
         setEditLiked(Array.isArray(reader.likedTags) ? reader.likedTags : []);
@@ -350,7 +360,17 @@ window.__ModuleLoader__.load({
             : null)),
       );
 
+      const readBooks = Array.isArray(data?.readBooks)
+        ? data.readBooks.filter((item) => !effReader || item.readerId === effReader)
+        : [];
       const reportPane = h(React.Fragment, null,
+        readBooks.length ? h("div", { style: S.card },
+          h("div", { style: S.label, marginTop: 0 }, "它读过的书"),
+          h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 } },
+            readBooks.slice(0, 8).map((item) => h("div", { key: `${item.readerId}:${item.bookId}`, style: { border: `1px solid ${T.line}`, borderRadius: 10, padding: 8, background: T.softer, minWidth: 0 } },
+              h("div", { style: { fontWeight: 600, fontSize: 12.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, String(item.title ?? item.bookId)),
+              h("div", { style: { color: T.muted, fontSize: 11, marginTop: 2 } }, `${item.stars} ★ · ${item.status === "drop" ? "弃书" : item.status === "watch" ? "观望" : "追更"} · ${item.ratings} 次 · 第 ${item.chapterNumber ?? "?"} 章`),
+              item.comment ? h("div", { style: { fontSize: 11.5, marginTop: 4, lineHeight: 1.5 } }, String(item.comment).slice(0, 60)) : null)))) : null,
         h("div", { style: S.card },
           h("div", { style: S.row },
             h("input", { style: { ...S.input, flex: 1 }, type: "date", value: reportDate, onChange: (e) => setReportDate(e.target.value) }),
@@ -396,7 +416,14 @@ window.__ModuleLoader__.load({
               Array.isArray(item.matchedTags) && item.matchedTags.length
                 ? h("div", { style: { marginTop: 5 } }, item.matchedTags.map((tag, j) => h("span", { key: j, style: S.chip }, String(tag))))
                 : null,
-              item.reason || b.summary ? h("div", { style: { marginTop: 6, fontSize: 12 } }, String(item.reason ?? b.summary)) : null); }));
+              item.reason || b.summary ? h("div", { style: { marginTop: 6, fontSize: 12 } }, String(item.reason ?? b.summary)) : null,
+              h("div", { style: { display: "flex", gap: 6, marginTop: 8 } },
+                h("button", { type: "button", style: S.ghost, onClick: () => doShelfAdd(b), disabled: busy }, "加入书架"),
+                h("button", { type: "button", style: S.ghost, onClick: () => doLearn(b, b.chapterId ?? "c1"), disabled: busy }, "看评论区")),
+              learned[b.bookId]
+                ? h("div", { style: { marginTop: 8, padding: "6px 8px", background: T.softer, borderRadius: 8, fontSize: 11.5, color: T.muted, lineHeight: 1.55 } },
+                    `关注点：${(learned[b.bookId].hints ?? []).join("；") || "暂时没有可用的评论区信号"}`)
+                : null); }));
 
       const pane = tab === "profile" ? profilePane : tab === "book" ? bookPane : tab === "report" ? reportPane : findPane;
 

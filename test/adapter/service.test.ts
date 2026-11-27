@@ -848,3 +848,48 @@ test("改口味标签：生成新版本，别名归一且内容不变不升版",
     assert.equal(again.version, next.version, "内容不变不应产生新版本");
   }, { clock: CLOCK });
 });
+
+test("加入书架：只存书目元信息，不建章节、不拉正文", async () => {
+  await withService(async (service) => {
+    const book = await service.addToShelf({
+      bookId: "fake-sys-1",
+      title: "我在末日开系统",
+      author: "老K",
+      tags: ["末世", "系统流"],
+      sourceId: "fake",
+      sourceSite: "fake.local",
+    });
+    assert.equal(book.accessLevel, "public");
+    assert.deepEqual(book.tags, ["末世", "系统流"]);
+    assert.equal(book.author, "老K");
+    assert.equal((await service.listChapters("fake-sys-1")).length, 0);
+    assert.equal((await service.listBooks()).length, 1);
+  }, { clock: CLOCK });
+});
+
+test("它读过的书：按读者 + 书聚合最近一条评分", async () => {
+  await withService(async (service) => {
+    const reader = await service.createReaderFromTemplate("binge");
+    await service.importBook({ bookId: "b", title: "示例书" });
+    const chapter = await service.importChapter({ bookId: "b", chapterId: "c1", sequenceNumber: 1, title: "第一章", content: "雨从傍晚开始下。\n\n巷口的灯坏了。" });
+    const taste = await service.getTaste(reader.id);
+    await service.saveRating({
+      readerId: reader.id,
+      target: { kind: "manuscript", bookId: "b", chapterId: "c1", contentHash: chapter.contentHash, chapterNumber: 1, revision: chapter.revision },
+      stars: 5,
+      chapterComment: "好看。",
+      status: "follow",
+      tasteVersion: taste!.version,
+      model: "manual",
+      promptVersion: "manual",
+    });
+    const shelf = await service.readingShelf(reader.id);
+    assert.equal(shelf.length, 1);
+    assert.equal(shelf[0]!.bookId, "b");
+    assert.equal(shelf[0]!.title, "示例书");
+    assert.equal(shelf[0]!.stars, 5);
+    assert.equal(shelf[0]!.ratings, 1);
+    assert.equal(shelf[0]!.chapterNumber, 1);
+    assert.deepEqual(await service.readingShelf("other-reader"), []);
+  }, { clock: CLOCK });
+});
