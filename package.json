@@ -1,0 +1,79 @@
+{
+  "name": "dsh-novel-comment",
+  "version": "0.5.0",
+  "type": "module",
+  "description": "AI 读者：按标签自己找书读、给章节打 1–5 星并写章评/段评，形成独立口味档案与评审链。默认模拟，配置模型端点后才真正调用模型。",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./remote": "./lib/remote.js",
+    "./client": "./client.js",
+    "./icon": "./icon.svg"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node --check index.js && node --check client.js && node --check lib/remote.js && node --check lib/remote-contract.js && npm run build && npm run typecheck && node scripts/test.mjs",
+    "test": "node scripts/test.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "release": "node scripts/publish.mjs"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "CHANGELOG.md",
+    "docs"
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "novel",
+    "reader",
+    "review",
+    "ai-reader"
+  ],
+  "license": "MIT",
+  "author": "DrizzleGig",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.7",
+    "esbuild": "^0.25.12",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-session": "*",
+    "@deepseek-ai/dsh-typert-protocol": "*"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-session": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-typert-protocol": {
+      "optional": true
+    }
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-sidebar-right"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

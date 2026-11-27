@@ -1,0 +1,5 @@
+- insert:
+    - id: dsh-novel-comment
+      name: 'dsh-novel-comment'
+    - id: dsh-novel-comment-remote
+      name: 'dsh-novel-comment/remote'
