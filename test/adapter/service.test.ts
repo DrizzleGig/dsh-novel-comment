@@ -893,3 +893,21 @@ test("它读过的书：按读者 + 书聚合最近一条评分", async () => {
     assert.deepEqual(await service.readingShelf("other-reader"), []);
   }, { clock: CLOCK });
 });
+
+test("加入书架：同源重复幂等，异源/已导入书拒绝覆盖", async () => {
+  await withService(async (service) => {
+    const first = await service.addToShelf({ bookId: "fake-sys-1", title: "我在末日开系统", sourceId: "fake", sourceSite: "fake.local", tags: ["末世"] });
+    assert.equal(first.title, "我在末日开系统");
+    const again = await service.addToShelf({ bookId: "fake-sys-1", title: "改过的标题", sourceId: "fake", sourceSite: "fake.local" });
+    assert.equal(again.title, "我在末日开系统", "同源重复添加不应覆盖已有元信息");
+    await assert.rejects(
+      () => service.addToShelf({ bookId: "fake-sys-1", title: "x", sourceId: "other" }),
+      /来源不同/,
+    );
+    await service.importBook({ bookId: "mine", title: "我的稿" });
+    await assert.rejects(
+      () => service.addToShelf({ bookId: "mine", title: "我的稿", sourceId: "fake" }),
+      /来源不同/,
+    );
+  }, { clock: CLOCK });
+});

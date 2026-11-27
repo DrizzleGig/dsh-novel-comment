@@ -370,7 +370,7 @@ window.__ModuleLoader__.load({
             readBooks.slice(0, 8).map((item) => h("div", { key: `${item.readerId}:${item.bookId}`, style: { border: `1px solid ${T.line}`, borderRadius: 10, padding: 8, background: T.softer, minWidth: 0 } },
               h("div", { style: { fontWeight: 600, fontSize: 12.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } }, String(item.title ?? item.bookId)),
               h("div", { style: { color: T.muted, fontSize: 11, marginTop: 2 } }, `${item.stars} ★ · ${item.status === "drop" ? "弃书" : item.status === "watch" ? "观望" : "追更"} · ${item.ratings} 次 · 第 ${item.chapterNumber ?? "?"} 章`),
-              item.comment ? h("div", { style: { fontSize: 11.5, marginTop: 4, lineHeight: 1.5 } }, String(item.comment).slice(0, 60)) : null)))) : null,
+              item.comment ? h("div", { style: { fontSize: 11.5, marginTop: 4, lineHeight: 1.5, overflowWrap: "anywhere", wordBreak: "break-word" } }, String(item.comment).slice(0, 60)) : null)))) : null,
         h("div", { style: S.card },
           h("div", { style: S.row },
             h("input", { style: { ...S.input, flex: 1 }, type: "date", value: reportDate, onChange: (e) => setReportDate(e.target.value) }),

@@ -618,15 +618,36 @@ export class ReaderService {
     sourceId?: string;
     sourceSite?: string;
   }): Promise<BookRecord> {
+    assertSafeId(input.bookId, "bookId");
     const tags = [...new Set((input.tags ?? []).map((tag) => String(tag ?? "").trim()).filter(Boolean))];
-    return this.importBook({
-      bookId: input.bookId,
-      title: input.title,
-      author: input.author,
-      sourceId: input.sourceId,
-      sourceSite: input.sourceSite,
-      tags,
-      accessLevel: "public",
+    return this.withWriteLock(async () => {
+      const existing = await readJsonStrict<BookRecord>(this.bookFile(input.bookId));
+      if (existing) {
+        const sameSource =
+          (existing.sourceId ?? null) === (input.sourceId ?? null) &&
+          (existing.sourceSite ?? null) === (input.sourceSite ?? null);
+        if (!sameSource) {
+          throw new Error(
+            `书 ${input.bookId} 已存在且来源不同（现有：${existing.sourceId ?? "本地导入"}），拒绝用书架信息覆盖；换一个 bookId 或先处理旧书`,
+          );
+        }
+        // 同源重复添加：保持幂等，不覆盖已有元信息（章节/评分都还在）
+        return existing;
+      }
+      const now = this.clock().toISOString();
+      const book: BookRecord = {
+        schemaVersion: 2,
+        bookId: input.bookId,
+        title: input.title,
+        author: input.author,
+        sourceId: input.sourceId,
+        sourceSite: input.sourceSite,
+        tags,
+        accessLevel: "public",
+        addedAt: now,
+      };
+      await writeJson(this.bookFile(input.bookId), book);
+      return book;
     });
   }
 
