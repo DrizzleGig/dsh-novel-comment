@@ -17,3 +17,10 @@ test("别名映射到规范标签，未知标签不冒充", () => {
   assert.deepEqual(result.known, ["系统流"]);
   assert.deepEqual(result.unknown, ["不知道的标签"]);
 });
+
+test("别名查表不把原型属性当别名", () => {
+  for (const key of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    assert.equal(canonicalTag(key), null, `${key} 不能被当成标签`);
+    assert.equal(normalizeTags([key]).unknown.length, 1);
+  }
+});

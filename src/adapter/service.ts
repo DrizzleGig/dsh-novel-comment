@@ -822,7 +822,11 @@ export class ReaderService {
   async searchSource(query: { text?: string; tags?: string[]; limit?: number }): Promise<SearchResult[]> {
     if (!this.source) throw new Error("没有配置书源（L1/L2），只能导入用户自带的作品");
     const results = await this.source.search(query);
-    return results.map((result) => ({ ...result, book: { ...result.book, tags: normalizeTags(result.book.tags).known } }));
+    return results.map((result) => {
+      const normalized = normalizeTags(result.book.tags);
+      // 未知站点标签保留原文：避雷/排除要按字面比较，不能因为「库里没有」就被丢掉
+      return { ...result, book: { ...result.book, tags: [...new Set([...normalized.known, ...normalized.unknown])] } };
+    });
   }
 
   /**

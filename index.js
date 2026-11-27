@@ -96,7 +96,7 @@ const tools = [
         chapterTitle: { type: "string", description: "import：章节标题" },
         content: { type: "string", description: "import：章节正文" },
       },
-      required: ["dir", "action"],
+      required: ["dir"],
       additionalProperties: false,
     },
     output,

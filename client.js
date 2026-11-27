@@ -22,10 +22,10 @@ window.__ModuleLoader__.load({
 
     const THEME_KEY = "dsh-novel-comment.theme";
     const THEMES = [
-      { id: "paper", label: "纸白", bg: "#f6f5f1", card: "#ffffff", softer: "#f1efe9", ink: "#292f2b", muted: "#92968f", faint: "#b3b6ae", line: "#e8e7e0", accent: "#425f55", star: "#d5a64c", danger: "#b7655c", ok: "#4f8a6d", warn: "#c58a3d", glow: "rgba(66,95,85,.06)" },
-      { id: "cream", label: "米黄", bg: "#f8f1df", card: "#fffaf0", softer: "#f0e6cf", ink: "#3b3327", muted: "#8d8069", faint: "#b6a98f", line: "#e4d7bb", accent: "#8a6134", star: "#c58a2e", danger: "#a75c52", ok: "#5c7d4f", warn: "#b5762f", glow: "rgba(138,97,52,.08)" },
-      { id: "green", label: "护眼绿", bg: "#e9f1e4", card: "#f7fbf3", softer: "#dde9d6", ink: "#28372a", muted: "#75856d", faint: "#a3b19b", line: "#cfdec6", accent: "#3f6b45", star: "#b8873a", danger: "#a05a52", ok: "#3f7a4c", warn: "#a9822f", glow: "rgba(63,107,69,.07)" },
-      { id: "night", label: "夜间", bg: "#1f2327", card: "#272c31", softer: "#2f353b", ink: "#e8eae7", muted: "#a4aba3", faint: "#7d857e", line: "#3a4148", accent: "#7fb08a", star: "#d8b264", danger: "#d08a80", ok: "#88c79a", warn: "#d8a15a", glow: "rgba(127,176,138,.10)" },
+      { id: "paper", label: "纸白", bg: "#f6f5f1", card: "#ffffff", softer: "#f1efe9", ink: "#292f2b", muted: "#676c64", faint: "#7f837b", line: "#e8e7e0", accent: "#425f55", star: "#d5a64c", danger: "#b7655c", ok: "#4f8a6d", warn: "#c58a3d", glow: "rgba(66,95,85,.06)", onAccent: "#ffffff" },
+      { id: "cream", label: "米黄", bg: "#f8f1df", card: "#fffaf0", softer: "#f0e6cf", ink: "#3b3327", muted: "#665b4b", faint: "#837662", line: "#e4d7bb", accent: "#8a6134", star: "#c58a2e", danger: "#a75c52", ok: "#5c7d4f", warn: "#b5762f", glow: "rgba(138,97,52,.08)", onAccent: "#ffffff" },
+      { id: "green", label: "护眼绿", bg: "#e9f1e4", card: "#f7fbf3", softer: "#dde9d6", ink: "#28372a", muted: "#566451", faint: "#73806b", line: "#cfdec6", accent: "#3f6b45", star: "#b8873a", danger: "#a05a52", ok: "#3f7a4c", warn: "#a9822f", glow: "rgba(63,107,69,.07)", onAccent: "#ffffff" },
+      { id: "night", label: "夜间", bg: "#1f2327", card: "#272c31", softer: "#2f353b", ink: "#e8eae7", muted: "#a4aba3", faint: "#7d857e", line: "#3a4148", accent: "#7fb08a", star: "#d8b264", danger: "#d08a80", ok: "#88c79a", warn: "#d8a15a", glow: "rgba(127,176,138,.10)", onAccent: "#12201a" },
     ];
     const readTheme = () => {
       try {
@@ -52,7 +52,7 @@ window.__ModuleLoader__.load({
       label: { color: T.muted, fontSize: 12, margin: "10px 0 5px" },
       input: { width: "100%", boxSizing: "border-box", border: `1px solid ${T.line}`, borderRadius: 8, padding: "7px 9px", fontSize: 12.5, fontFamily: T.sans, background: T.card, color: T.ink },
       row: { display: "flex", gap: 6, alignItems: "center" },
-      primary: { border: 0, background: T.accent, color: "#fff", borderRadius: 8, padding: "7px 12px", fontSize: 12.5, cursor: "pointer", fontFamily: T.sans, minHeight: 28 },
+      primary: { border: 0, background: T.accent, color: T.onAccent, borderRadius: 8, padding: "7px 12px", fontSize: 12.5, cursor: "pointer", fontFamily: T.sans, minHeight: 28 },
       ghost: { border: `1px solid ${T.line}`, background: T.card, color: T.ink, borderRadius: 8, padding: "6px 10px", fontSize: 12, cursor: "pointer", fontFamily: T.sans, minHeight: 28 },
       star: (on) => ({ border: 0, background: "transparent", color: on ? T.star : T.faint, fontSize: 22, cursor: "pointer", padding: "0 2px", lineHeight: 1 }),
       chip: { display: "inline-block", fontSize: 11, padding: "2px 8px", borderRadius: 999, background: T.softer, color: T.muted, marginRight: 4 },
@@ -60,7 +60,7 @@ window.__ModuleLoader__.load({
       ok: { color: T.ok, fontSize: 12, margin: "2px 0 8px" },
       empty: { color: T.muted, fontSize: 12.5, padding: "14px 4px", lineHeight: 1.6 },
       pre: { background: T.softer, border: `1px solid ${T.line}`, borderRadius: 10, padding: 10, fontSize: 12, whiteSpace: "pre-wrap", lineHeight: 1.6, maxHeight: 320, overflow: "auto", margin: 0 },
-      avatar: (on) => ({ width: 28, height: 28, borderRadius: "50%", flex: "none", background: on ? T.accent : T.softer, color: on ? "#fff" : T.muted, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }),
+      avatar: (on) => ({ width: 28, height: 28, borderRadius: "50%", flex: "none", background: on ? T.accent : T.softer, color: on ? T.onAccent : T.muted, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 600 }),
       readerBtn: (on) => ({ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", border: `1px solid ${on ? T.accent : T.line}`, background: on ? T.glow : T.card, borderRadius: 10, padding: "8px 10px", cursor: "pointer", fontFamily: T.sans, color: T.ink, marginBottom: 6 }),
     });
 
@@ -90,7 +90,7 @@ window.__ModuleLoader__.load({
         return h("button", {
           key: tag, type: "button", onClick: () => toggle(tag),
           title: alias.length ? `别名：${alias.join(" / ")}` : tag,
-          style: { ...S.chip, cursor: "pointer", minHeight: 24, marginBottom: 2, border: `1px solid ${on ? T.accent : "transparent"}`, background: on ? T.accent : T.softer, color: on ? "#fff" : T.muted },
+          style: { ...S.chip, cursor: "pointer", minHeight: 24, marginBottom: 2, border: `1px solid ${on ? T.accent : "transparent"}`, background: on ? T.accent : T.softer, color: on ? T.onAccent : T.muted },
         }, tag);
       };
       const visible = categories
@@ -98,8 +98,8 @@ window.__ModuleLoader__.load({
         .filter((category) => !q || category.tags.length > 0);
       return h("div", null,
         h("div", { style: { display: "flex", gap: 4, alignItems: "center", marginBottom: 6 } },
-          h("button", { type: "button", onClick: () => setMode("liked"), style: { ...S.ghost, padding: "3px 10px", background: mode === "liked" ? T.accent : T.card, color: mode === "liked" ? "#fff" : T.ink, border: `1px solid ${mode === "liked" ? T.accent : T.line}` } }, `喜好 ${liked.length}`),
-          h("button", { type: "button", onClick: () => setMode("disliked"), style: { ...S.ghost, padding: "3px 10px", background: mode === "disliked" ? T.danger : T.card, color: mode === "disliked" ? "#fff" : T.ink, border: `1px solid ${mode === "disliked" ? T.danger : T.line}` } }, `雷点 ${disliked.length}`),
+          h("button", { type: "button", onClick: () => setMode("liked"), style: { ...S.ghost, padding: "3px 10px", background: mode === "liked" ? T.accent : T.card, color: mode === "liked" ? T.onAccent : T.ink, border: `1px solid ${mode === "liked" ? T.accent : T.line}` } }, `喜好 ${liked.length}`),
+          h("button", { type: "button", onClick: () => setMode("disliked"), style: { ...S.ghost, padding: "3px 10px", background: mode === "disliked" ? T.danger : T.card, color: mode === "disliked" ? T.onAccent : T.ink, border: `1px solid ${mode === "disliked" ? T.danger : T.line}` } }, `雷点 ${disliked.length}`),
           h("input", { style: { ...S.input, flex: 1, padding: "5px 8px" }, value: query, onChange: (e) => setQuery(e.target.value), placeholder: "搜标签或别名" })),
         h("div", { style: { fontSize: 11, color: T.muted, marginBottom: 5 } }, mode === "liked" ? "点标签加入「喜好」；找书时按喜好匹配" : "点标签加入「雷点」；找书时硬排除"),
         h("div", { style: { maxHeight: 190, overflowY: "auto", border: `1px solid ${T.line}`, borderRadius: 10, padding: 8, background: T.card } },

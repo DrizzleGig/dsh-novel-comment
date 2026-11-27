@@ -92,7 +92,7 @@ const TAG_BY_LOWER = new Map(ALL_TAGS.map((t) => [t.toLowerCase(), t]));
 export function canonicalTag(input: string): string | null {
   const key = input.trim().toLowerCase();
   if (!key) return null;
-  const aliased = TAG_ALIASES[key];
+  const aliased = Object.hasOwn(TAG_ALIASES, key) ? TAG_ALIASES[key] : undefined;
   if (aliased) return aliased;
   return TAG_BY_LOWER.get(key) ?? null;
 }
