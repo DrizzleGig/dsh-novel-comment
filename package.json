@@ -1,6 +1,6 @@
 {
   "name": "dsh-novel-comment",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "type": "module",
   "description": "AI 读者：按标签自己找书读、给章节打 1–5 星并写章评/段评，形成独立口味档案与评审链。默认模拟，配置模型端点后才真正调用模型。",
   "main": "index.js",
@@ -26,6 +26,7 @@
     "icon.svg",
     "README.md",
     "CHANGELOG.md",
+    "LICENSE",
     "docs"
   ],
   "keywords": [
@@ -39,6 +40,21 @@
   ],
   "license": "MIT",
   "author": "DrizzleGig",
+  "contributors": [
+    {
+      "name": "MiyueWinter",
+      "email": "mingyue_11129@qq.com",
+      "url": "https://github.com/MiyueWinter"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DrizzleGig/dsh-novel-comment.git"
+  },
+  "homepage": "https://github.com/DrizzleGig/dsh-novel-comment#readme",
+  "bugs": {
+    "url": "https://github.com/DrizzleGig/dsh-novel-comment/issues"
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"

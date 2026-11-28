@@ -39,6 +39,8 @@ window.__ModuleLoader__.load({
     };
     const unwrap = (r) => { if (r && r.ok === false) throw new Error(r.error?.message ?? r.message ?? "remote 调用失败"); return r?.data ?? r; };
     const SHADOW = "0 2px 8px rgba(40,45,40,.05)";
+    // 标签目录随构建写入（源：src/reader/tags.ts）；remote.tags 可用时会刷新，不可用时界面仍显示完整标签。
+    const EMBEDDED_TAGS = /* TAG_CATALOG_BEGIN */{"categories":[{"id":"world","label":"题材 / 世界观","tags":["都市","仙侠","玄幻","奇幻","科幻","末世","历史","武侠","悬疑","灵异","游戏","电竞","校园","职场","娱乐圈","年代","军事","体育","赛博","克苏鲁","灵气复苏"]},{"id":"plot","label":"剧情机制","tags":["系统流","穿越","重生","穿书","快穿","无限流","诸天万界","签到流","直播流","种田","经营","复仇","探案","升级","无敌流","扮猪吃虎","废柴逆袭","龙傲天","群像冒险","单元剧"]},{"id":"romance","label":"感情结构与角色","tags":["单女主","多女主","后宫","无 CP","双强","群像","师徒","青梅竹马","先婚后爱","追妻火葬场","破镜重圆","暗恋","甜宠","虐恋","宫斗","宅斗","豪门"]},{"id":"pace","label":"节奏与结构","tags":["快节奏","慢热","强钩子","日常向","主线推进","伏笔密集","短平快","长篇铺陈"]},{"id":"style","label":"语气与风格","tags":["爽文","轻松搞笑","温馨治愈","暗黑压抑","严肃","考据","对白密集","描写细腻","第一人称","多视角"]},{"id":"boundary","label":"内容边界（只作偏好，不作风评）","tags":["主角性别","感情线有无","暴力程度","悲剧结局","系统是否拟人","是否虐主","烂尾预警"]}],"aliases":{"末日":"末世","惊悚":"灵异","赛博朋克":"赛博","系统文":"系统流","面板流":"系统流","魂穿":"穿越","身穿":"穿越","轮回流":"无限流","副本流":"无限流","碾压流":"无敌流","藏拙":"扮猪吃虎","低调流":"扮猪吃虎","1v1":"单女主","宠文":"甜宠","女强":"双强","男强":"双强","爽":"爽文","搞笑":"轻松搞笑","治愈":"温馨治愈","黑暗":"暗黑压抑"}}/* TAG_CATALOG_END */;
 
     const makeStyles = (T) => ({
       root: { padding: "14px 14px 20px", background: T.bg, color: T.ink, fontFamily: T.sans, fontSize: 13, height: "100%", overflowY: "auto", boxSizing: "border-box" },
@@ -104,7 +106,7 @@ window.__ModuleLoader__.load({
         h("div", { style: { fontSize: 11, color: T.muted, marginBottom: 5 } }, mode === "liked" ? "点标签加入「喜好」；找书时按喜好匹配" : "点标签加入「雷点」；找书时硬排除"),
         h("div", { style: { maxHeight: 190, overflowY: "auto", border: `1px solid ${T.line}`, borderRadius: 10, padding: 8, background: T.card } },
           categories.length === 0
-            ? h("div", { style: { ...S.empty, padding: 4 } }, "标签目录还没加载，点右上角刷新")
+            ? h("div", { style: { ...S.empty, padding: 4 } }, "标签目录为空，点右上角刷新")
             : visible.map((category) => h("div", { key: category.id, style: { marginBottom: 6 } },
                 h("div", { style: { fontSize: 11, color: T.muted, margin: "2px 0 4px" } }, category.label),
                 h("div", { style: { display: "flex", flexWrap: "wrap", gap: 4 } }, category.tags.map(chip)))),
@@ -146,7 +148,7 @@ window.__ModuleLoader__.load({
       const [found, setFound] = React.useState(null);
       const [uil, setUil] = React.useState({ bookId: "", bookTitle: "", chapterId: "c1", sequenceNumber: 1, chapterTitle: "第一章", url: "" });
       const [themeId, setThemeId] = React.useState(readTheme);
-      const [catalog, setCatalog] = React.useState({ categories: [], aliases: {} });
+      const [catalog, setCatalog] = React.useState(EMBEDDED_TAGS);
       const [findTags, setFindTags] = React.useState([]);
       const [findExclude, setFindExclude] = React.useState([]);
       const [findMeta, setFindMeta] = React.useState(null);
@@ -175,19 +177,17 @@ window.__ModuleLoader__.load({
         catch (e) { setPhase("error"); setError(`读取失败：${e instanceof Error ? e.message : String(e)}`); }
       }, [remote, sessionId]);
       React.useEffect(() => { load(); }, [load]);
-      React.useEffect(() => {
-        if (!remote || !sessionId) return undefined;
-        let alive = true;
-        (async () => {
-          try {
-            const value = unwrap(await remote.tags(sessionId));
-            if (alive && value && Array.isArray(value.categories) && value.categories.length) setCatalog(value);
-          } catch (e) {
-            console.error("[novel-reader] 标签目录读取失败", e);
-          }
-        })();
-        return () => { alive = false; };
+      const loadTags = React.useCallback(async () => {
+        if (!remote || !sessionId) return;
+        try {
+          const value = unwrap(await remote.tags(sessionId));
+          if (value && Array.isArray(value.categories) && value.categories.length) setCatalog(value);
+        } catch (e) {
+          // 面板里已有构建时写入的标签目录，这里失败只记日志，不影响使用
+          console.warn("[novel-reader] remote.tags 不可用，使用内置标签目录", e);
+        }
       }, [remote, sessionId]);
+      React.useEffect(() => { loadTags(); }, [loadTags]);
       React.useEffect(() => {
         const on = () => setNarrow(window.innerWidth < 380);
         on();
@@ -390,7 +390,7 @@ window.__ModuleLoader__.load({
       const findPane = h(React.Fragment, null,
         h("div", { style: S.card },
           h("div", { style: { fontSize: 13, fontWeight: 600, marginBottom: 6 } }, "按标签找书"),
-          h("div", { style: { ...S.empty, padding: "0 0 8px" } }, "喜好标签加权匹配，雷点硬排除（需 READER_SOURCE=fake 演示）。"),
+          h("div", { style: { ...S.empty, padding: "0 0 8px" } }, "喜好标签加权匹配，雷点直接排除。"),
           h(TagPicker, { S, T, catalog, liked: findTags, disliked: findExclude, onLiked: setFindTags, onDisliked: setFindExclude }),
           h("button", { type: "button", style: { ...S.primary, width: "100%", marginTop: 8 }, onClick: doTagSearch, disabled: busy }, "按标签找 5 本"),
           h("button", { type: "button", style: { ...S.ghost, width: "100%", marginTop: 6 }, onClick: doFind, disabled: busy }, `按「${selReader?.name ?? "当前读者"}」的口味找 3 本`)),
@@ -435,7 +435,7 @@ window.__ModuleLoader__.load({
               key: theme.id, type: "button", title: `底色：${theme.label}`, "aria-label": `底色：${theme.label}`, onClick: () => chooseTheme(theme.id),
               style: { width: 15, height: 15, borderRadius: "50%", padding: 0, cursor: "pointer", border: `2px solid ${themeId === theme.id ? T.accent : "transparent"}`, background: theme.bg, boxShadow: `inset 0 0 0 1px ${theme.line}` },
             })),
-            h("button", { type: "button", style: S.iconBtn, onClick: load, disabled: busy }, "刷新"))),
+            h("button", { type: "button", style: S.iconBtn, onClick: () => { load(); loadTags(); }, disabled: busy }, "刷新"))),
         h("div", { style: S.sub }, "口味是跨书资产 · 星级与章评只属于当前这本书"),
         h("div", { style: S.tabs },
           narrow && tab !== "find"

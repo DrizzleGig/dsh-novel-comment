@@ -32,6 +32,7 @@ const REQUIRED_PACK = [
   'icon.svg',
   'README.md',
   'CHANGELOG.md',
+  'LICENSE',
   'docs/DETAIL.md',
 ]
 

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 0.5.4
+
+- **标签目录随构建内置**：构建时把 `tags.ts` 的六类标签（83 个）与别名写进 `client.js`；`remote.tags` 取不到时面板仍显示完整标签，不再出现「标签目录还没加载」。刷新按钮现在同时重拉状态与标签。
+- 找书页删掉「需 READER_SOURCE=fake 演示」这类开发提示，改成用户话术。
+- README：加 npm / license / GitHub Stars 徽标、共同作者、喜欢它、许可证三节；新增 `LICENSE`。
+- `package.json` 补 `repository` / `homepage` / `bugs` / `contributors`（MiyueWinter）。
+- 测试：**120 pass / 0 fail**。
+
 ## 0.5.3
 
 - **加入书架不再覆盖已有书**：同一把写锁里先查 `bookId`——同源重复添加保持幂等、不覆盖元信息；来源不同或该书已是作者导入稿时直接拒绝，避免 bookId 撞车把作者稿改成 `public`、章节与评分却还挂在旧身份下。

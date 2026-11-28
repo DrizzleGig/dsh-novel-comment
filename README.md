@@ -1,8 +1,12 @@
 # dsh-novel-comment · AI 读者
 
+[![npm](https://img.shields.io/npm/v/dsh-novel-comment?color=cb3837&label=npm&logo=npm&logoColor=white)](https://www.npmjs.com/package/dsh-novel-comment)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/DrizzleGig/dsh-novel-comment?style=social)](https://github.com/DrizzleGig/dsh-novel-comment)
+
 DSH 插件：**一屋子只读到这一章的 AI 读者**。他们按自己的口味读你的稿子，给 **1–5 星 + 章评 + 段评**，追更或弃书，并把偏好沉淀成可复用的口味档案与按序评审链。
 
-> 当前版本 **`0.5.3`**：5 个 Host 工具 + 右栏「AI 读者」面板（阅读档案 / 当前作品 / 日报 / 找书 四页签）。六类标签选择器、按标签找书、四档面板底色。默认模拟；配置模型端点后才真正调用模型。
+> 当前版本 **`0.5.4`**：5 个 Host 工具 + 右栏「AI 读者」面板（阅读档案 / 当前作品 / 日报 / 找书 四页签）。六类标签选择器（标签目录随包内置）、按标签找书、四档面板底色。默认模拟；配置模型端点后才真正调用模型。
 
 ## 安装
 
@@ -28,7 +32,7 @@ DSH 插件：**一屋子只读到这一章的 AI 读者**。他们按自己的�
 | `reader_review` | 真实评审一章（需模型配置）：严格校验星级/章评/段评定位/弃书原因，失败自动修复一次；只喂「读者已读到的前文 + 本章正文」，不注入后文 |
 | `reader_rate` | 手工记一条读者评分（不调模型）：1–5 整星 + 章评 + 段评 + 追更/观望/弃书（弃书必填原因码） |
 | `reader_report` | 生成某天的读者日报（`### <bookId>` 格式），可写入 `reports/<date>.md` |
-| `reader_discover` | 按口味找书：喜好加权、雷点硬过滤、同作者/相似标签降权、排除已读已弃；真实书源未接入，`READER_SOURCE=fake` 才能用 |
+| `reader_discover` | 按口味或按标签找书：喜好加权、雷点硬过滤、同作者/相似标签降权、排除已读已弃；真实书源未接入，`READER_SOURCE=fake` 才能用 |
 
 ## 右栏面板
 
@@ -36,6 +40,7 @@ DSH 插件：**一屋子只读到这一章的 AI 读者**。他们按自己的�
 - **当前作品**：正文 + 星级 + 章评 + 段评 + 追更/观望/弃书 + 分歧归因 + 配额条；
 - **日报**：顶部是「它读过的书」卡片墙（星级/状态/读到第几章/一句话），下面按天汇总，可保存；
 - **找书**：按口味或按标签推荐；结果可「加入书架」（只存书目，不存正文）或「看评论区」（只给关注点提示）；支持「从公开链接导入（L2）」，只存 ≤300 字摘录；
+- 标签选择器（六类 + 别名 + 自定义）在「新建读者 / 改口味 / 找书」三处共用；标签目录随包内置，不依赖联网也能显示；
 - 面板宽度 <380px 时页签折叠为「档案 / 作品 / 日报 +1」。
 
 ## 配置（可选）
@@ -63,3 +68,15 @@ DSH 插件：**一屋子只读到这一章的 AI 读者**。他们按自己的�
 - 真实模型调用需要你自己的端点/Key；本机发布验证使用脚本化模型端口，没有真实 API 调用。
 - 真实 DSH 宿主、真书、真实站点/登录态验证按工作区规则后置；发布结论仅覆盖模拟/单测范围。
 - 面板的 L2 公开链接导入已接通 remote 描述符，但真实站点抓取未验证（按工作区规则后置）。
+
+## 共同作者
+
+0.5.4 共同作者：[MiyueWinter](https://github.com/MiyueWinter) —— 文案、测试、设计与开发。
+
+## 喜欢它？
+
+如果「AI 读者」帮你看出了稿子的问题，欢迎在 [GitHub](https://github.com/DrizzleGig/dsh-novel-comment) 点亮 ⭐，也欢迎 [Issue](https://github.com/DrizzleGig/dsh-novel-comment/issues) 或 [PR](https://github.com/DrizzleGig/dsh-novel-comment/pulls)。
+
+## 许可证
+
+MIT License，见 [LICENSE](./LICENSE)。
